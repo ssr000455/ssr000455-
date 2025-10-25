@@ -1,0 +1,24 @@
+name: Build Minecraft Mod
+on: [push]
+
+jobs:
+  build:
+    steps:
+      - name: Checkout
+        uses: https://gitee.com/actions/checkout@v4
+        
+      - name: Setup Java
+        uses: https://gitee.com/actions/setup-java@v4
+        with:
+          java-version: '17'
+          
+      - name: Build with Gradle
+        run: |
+          chmod +x ./gradlew
+          ./gradlew build
+          
+      - name: Upload Artifact
+        uses: https://gitee.com/actions/upload-artifact@v4
+        with:
+          name: mod-jar
+          path: build/libs/
