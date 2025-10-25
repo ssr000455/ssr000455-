@@ -1,0 +1,41 @@
+{
+	"schemaVersion": 1,
+	"id": "luckymod",
+	"version": "1.0.0",
+	"name": "幸运模组",
+	"description": "添加了普通的剑等物品 - QQ: 3992763243",
+	"authors": [
+		"明天会更好"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/luckymod/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.limingze.luckymod.LuckyMod"
+		],
+		"client": [
+			"com.limingze.luckymod.LuckyModClient"
+		]
+	},
+	"mixins": [
+		"luckymod.mixins.json",
+		{
+			"config": "luckymod.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.15.10",
+		"minecraft": "1.20.1",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
