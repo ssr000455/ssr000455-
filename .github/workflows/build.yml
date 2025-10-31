@@ -1,4 +1,4 @@
-name: Build and Remap Mod
+name: Build Mod
 
 on:
   push:
@@ -9,59 +9,58 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Clean workspace
-      run: |
-        rm -rf build/ .gradle/
-        find . -name "*.class" -type f -delete
-        
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
+    - uses: actions/checkout@v4
+    - uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
         
-    - name: Make gradlew executable
-      run: chmod +x gradlew
-      
-    - name: Debug project structure
+    - name: Clean and prepare
       run: |
-        echo "=== 项目文件 ==="
-        ls -la
-        echo "=== 源代码结构 ==="
-        find src -name "*.java" | head -10
+        rm -rf build/ .gradle/
+        chmod +x gradlew
         
-    - name: Download dependencies
-      run: ./gradlew dependencies --no-daemon
-      
-    - name: Compile Java
-      run: ./gradlew compileJava --no-daemon --stacktrace
-      
-    - name: Process resources
-      run: ./gradlew processResources --no-daemon
-      
-    - name: Build and Remap JAR
+    - name: Build with debug info
       run: |
-        echo "=== 开始重映射 ==="
-        ./gradlew remapJar --no-daemon --stacktrace --info
-        echo "=== 重映射完成 ==="
+        echo "=== 开始构建 ==="
+        ./gradlew clean build --stacktrace --no-daemon
         
-    - name: Analyze build results
+    - name: Debug build outputs
       run: |
-        echo "📦 生成的JAR文件:"
+        echo "=== 构建产物 ==="
+        find build/ -name "*.jar" -type f | while read file; do
+          echo "📦 $file"
+          ls -la "$file"
+        done
+        echo "=== 检查重映射输入 ==="
+        if [ -f build/libs/luckymod-1.0.0-dev.jar ]; then
+          echo "✅ 找到dev jar文件"
+          jar tf build/libs/luckymod-1.0.0-dev.jar | head -5
+        else
+          echo "❌ 未找到dev jar文件"
+          # 手动修复：复制普通jar为dev jar
+          if [ -f build/libs/luckymod-1.0.0.jar ]; then
+            echo "🛠️ 手动创建dev jar"
+            cp build/libs/luckymod-1.0.0.jar build/libs/luckymod-1.0.0-dev.jar
+          fi
+        fi
+        
+    - name: Force remap
+      run: |
+        echo "=== 强制执行重映射 ==="
+        ./gradlew remapJar --stacktrace --no-daemon
+        
+    - name: Check final results
+      run: |
+        echo "=== 最终文件 ==="
         ls -la build/libs/
         echo ""
-        echo "🔍 开发版内容:"
-        jar tf build/libs/luckymod-1.0.0-dev.jar | grep -E "(net/|com/)" | head -3 || echo "无类文件"
-        echo ""
-        echo "🔍 发布版内容:"
-        jar tf build/libs/luckymod-1.0.0.jar | grep -E "(net/|com/)" | head -3 || echo "无类文件"
+        echo "=== 发布版内容检查 ==="
+        if [ -f build/libs/luckymod-1.0.0.jar ]; then
+          jar tf build/libs/luckymod-1.0.0.jar | grep -E "(net/|com/)" | head -5
+        fi
         
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v4
       with:
         name: mod-files
         path: build/libs/
-        retention-days: 7
