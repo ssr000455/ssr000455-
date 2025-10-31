@@ -1,6 +1,5 @@
 plugins {
     id 'fabric-loom' version '1.6.12'
-    id 'maven-publish'
 }
 
 version = "1.0.0"
@@ -11,9 +10,7 @@ base {
 }
 
 repositories {
-    maven { url 'https://maven.aliyun.com/repository/public' }
-    maven { url 'https://maven.aliyun.com/repository/central' }
-    maven { url 'https://maven.fabricmc.net/' }
+    mavenCentral()
 }
 
 dependencies {
@@ -35,13 +32,11 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 java {
-    withSourcesJar()
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 }
 
+// 修复：确保jar任务生成dev后缀
 jar {
-    from("LICENSE") {
-        rename { "${it}_${project.base.archivesName.get()}"}
-    }
+    archiveClassifier = 'dev'
 }
