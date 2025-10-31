@@ -1,9 +1,7 @@
-name: Build Mod
+name: Build and Remap Mod
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
     branches: [ main ]
 
 jobs:
@@ -11,56 +9,59 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v4
-    
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Clean workspace
+      run: |
+        rm -rf build/ .gradle/
+        find . -name "*.class" -type f -delete
+        
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
         
-    - name: Grant execute permission for gradlew
+    - name: Make gradlew executable
       run: chmod +x gradlew
       
-    - name: Build with Gradle
-      id: build
+    - name: Debug project structure
       run: |
-        echo "🛠️ 开始构建幸运模组..."
-        if ./gradlew build --stacktrace; then
-          echo "✅ 构建成功！"
-          echo "success=true" >> $GITHUB_OUTPUT
-        else
-          echo "❌ 构建失败！"
-          echo "success=false" >> $GITHUB_OUTPUT
-          exit 1
-        fi
+        echo "=== 项目文件 ==="
+        ls -la
+        echo "=== 源代码结构 ==="
+        find src -name "*.java" | head -10
+        
+    - name: Download dependencies
+      run: ./gradlew dependencies --no-daemon
       
-    - name: Display Build Results
-      if: success()
+    - name: Compile Java
+      run: ./gradlew compileJava --no-daemon --stacktrace
+      
+    - name: Process resources
+      run: ./gradlew processResources --no-daemon
+      
+    - name: Build and Remap JAR
       run: |
-        echo "🎉 构建完成！生成的文件："
+        echo "=== 开始重映射 ==="
+        ./gradlew remapJar --no-daemon --stacktrace --info
+        echo "=== 重映射完成 ==="
+        
+    - name: Analyze build results
+      run: |
+        echo "📦 生成的JAR文件:"
         ls -la build/libs/
-        echo "📊 文件大小统计："
-        du -h build/libs/*.jar | while read size file; do
-          echo "  $file - $size"
-        done
-        
-    - name: Display Error Info
-      if: failure()
-      run: |
-        echo "🔍 构建失败，检查以下可能的问题："
-        echo "1. 检查 gradle.properties 配置"
-        echo "2. 检查依赖版本兼容性" 
-        echo "3. 查看上方详细错误日志"
         echo ""
-        echo "💡 建议："
-        echo "- 确保 fabric_version 已设置"
-        echo "- 检查 Minecraft 版本匹配"
+        echo "🔍 开发版内容:"
+        jar tf build/libs/luckymod-1.0.0-dev.jar | grep -E "(net/|com/)" | head -3 || echo "无类文件"
+        echo ""
+        echo "🔍 发布版内容:"
+        jar tf build/libs/luckymod-1.0.0.jar | grep -E "(net/|com/)" | head -3 || echo "无类文件"
         
-    - name: Upload build artifacts
-      if: success()
+    - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: mod-build
+        name: mod-files
         path: build/libs/
         retention-days: 7
