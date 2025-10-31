@@ -15,50 +15,25 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         
-    - name: Clean and prepare
+    - name: Smart clean and build
       run: |
-        rm -rf build/ .gradle/
-        chmod +x gradlew
+        echo "🧹 智能清理..."
+        # 只清理关键缓存，保留依赖
+        rm -rf build/loom-cache/ build/devlibs/ build/libs/
+        find . -name "*.class" -type f -delete
         
-    - name: Build with debug info
-      run: |
-        echo "=== 开始构建 ==="
-        ./gradlew clean build --stacktrace --no-daemon
+        echo "🚀 强制构建..."
+        ./gradlew clean --rerun-tasks
+        ./gradlew compileJava --rerun-tasks --no-build-cache
+        ./gradlew processResources --rerun-tasks --no-build-cache
+        ./gradlew remapJar --rerun-tasks --no-build-cache --stacktrace
         
-    - name: Debug build outputs
+    - name: Verify results
       run: |
-        echo "=== 构建产物 ==="
-        find build/ -name "*.jar" -type f | while read file; do
-          echo "📦 $file"
-          ls -la "$file"
-        done
-        echo "=== 检查重映射输入 ==="
-        if [ -f build/libs/luckymod-1.0.0-dev.jar ]; then
-          echo "✅ 找到dev jar文件"
-          jar tf build/libs/luckymod-1.0.0-dev.jar | head -5
-        else
-          echo "❌ 未找到dev jar文件"
-          # 手动修复：复制普通jar为dev jar
-          if [ -f build/libs/luckymod-1.0.0.jar ]; then
-            echo "🛠️ 手动创建dev jar"
-            cp build/libs/luckymod-1.0.0.jar build/libs/luckymod-1.0.0-dev.jar
-          fi
-        fi
-        
-    - name: Force remap
-      run: |
-        echo "=== 强制执行重映射 ==="
-        ./gradlew remapJar --stacktrace --no-daemon
-        
-    - name: Check final results
-      run: |
-        echo "=== 最终文件 ==="
+        echo "=== 构建结果 ==="
         ls -la build/libs/
-        echo ""
-        echo "=== 发布版内容检查 ==="
-        if [ -f build/libs/luckymod-1.0.0.jar ]; then
-          jar tf build/libs/luckymod-1.0.0.jar | grep -E "(net/|com/)" | head -5
-        fi
+        echo "=== 发布版内容 ==="
+        jar tf build/libs/luckymod-1.0.0.jar | grep -E "^(net/|com/)" | head -5
         
     - uses: actions/upload-artifact@v4
       with:
