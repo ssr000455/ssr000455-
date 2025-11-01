@@ -2,9 +2,9 @@ name: Build Mod
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ 更新 ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ 更新 ]
   release:
     types: [ published ]
 
@@ -31,7 +31,7 @@ jobs:
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: mod-build
+        name: mod-build-v1.0.1
         path: |
           build/libs/*.jar
           !build/libs/*-dev.jar
@@ -44,6 +44,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ github.event.release.upload_url }}
-        asset_path: build/libs/expectationitems-1.0.0.jar
+        asset_path: build/libs/expectationitems-1.0.1.jar
         asset_name: expectationitems-${{ github.event.release.tag_name }}.jar
         asset_content_type: application/java-archive
