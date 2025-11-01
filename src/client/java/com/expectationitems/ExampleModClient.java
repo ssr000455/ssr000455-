@@ -1,4 +1,4 @@
-package com.example;
+package com.expectationitems;
 
 import net.fabricmc.api.ClientModInitializer;
 
