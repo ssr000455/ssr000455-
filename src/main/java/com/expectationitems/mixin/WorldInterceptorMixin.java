@@ -7,23 +7,23 @@ import net.minecraft.server.world.ServerWorld;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerWorld.class)
 public class WorldInterceptorMixin {
     
-    @Inject(method = "removeEntity", at = @At("HEAD"), cancellable = true)
-    private void interceptServerRemove(Entity entity, Entity.RemovalReason reason, CallbackInfoReturnable<Boolean> cir) {
+    // 使用更通用的方法 - 拦截所有实体移除相关的方法
+    @Inject(method = "tickEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;tick()V"))
+    private void interceptDuringEntityTick(Entity entity, CallbackInfo ci) {
+        // 在实体tick期间检查是否需要保护
         if (entity instanceof PlayerEntity player) {
             if (EventHandler.isDeathInterceptorEnabled(player) && 
-                EventHandler.isHoldingExpectationSword(player)) {
-                cir.setReturnValue(false);
-                cir.cancel();
-                player.setHealth(player.getMaxHealth());
+                EventHandler.isHoldingExpectationSword(player) && 
+                player.isRemoved()) {
                 
-                if (!player.getWorld().isClient) {
-                    player.sendMessage(net.minecraft.text.Text.literal("🛡️ 服务器移除被拦截!"), false);
-                }
+                // 如果玩家被标记为移除，取消移除状态
+                player.setRemoved(net.minecraft.entity.Entity.RemovalReason.UNLOADED_TO_CHUNK);
+                player.setHealth(player.getMaxHealth());
             }
         }
     }
