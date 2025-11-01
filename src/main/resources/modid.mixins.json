@@ -1,9 +1,9 @@
 {
 	"required": true,
-	"package": "com.limingze.luckymod.mixin",
-	"compatibilityLevel": "JAVA_17",
+	"package": "com.example.mixin",
+	"compatibilityLevel": "JAVA_21",
 	"mixins": [
-		"ServerMixin"
+		"ExampleMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

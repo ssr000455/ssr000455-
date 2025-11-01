@@ -1,38 +1,38 @@
 {
 	"schemaVersion": 1,
-	"id": "luckymod",
-	"version": "1.0.0",
-	"name": "幸运模组",
-	"description": "添加了一把剑，除此之外就没什么了 - QQ: 3992763243",
+	"id": "modid",
+	"version": "${version}",
+	"name": "Example mod",
+	"description": "This is an example description! Tell everyone what your mod is about!",
 	"authors": [
-		"明天会更好"
+		"Me!"
 	],
 	"contact": {
 		"homepage": "https://fabricmc.net/",
 		"sources": "https://github.com/FabricMC/fabric-example-mod"
 	},
 	"license": "CC0-1.0",
-	"icon": "assets/luckymod/icon.png",
+	"icon": "assets/modid/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"com.limingze.luckymod.LuckyMod"
+			"com.example.ExampleMod"
 		],
 		"client": [
-			"com.limingze.luckymod.LuckyModClient"
+			"com.example.ExampleModClient"
 		]
 	},
 	"mixins": [
-		"luckymod.mixins.json",
+		"modid.mixins.json",
 		{
-			"config": "luckymod.client.mixins.json",
+			"config": "modid.client.mixins.json",
 			"environment": "client"
 		}
 	],
 	"depends": {
 		"fabricloader": ">=0.15.10",
-		"minecraft": "1.20.1",
-		"java": ">=17",
+		"minecraft": "~1.20.6",
+		"java": ">=21",
 		"fabric-api": "*"
 	},
 	"suggests": {
