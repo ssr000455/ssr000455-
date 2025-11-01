@@ -1,0 +1,16 @@
+{
+  "item.expectationitems.expectation_sword": "期待之剑",
+  "item.expectationitems.tool_block": "工具方块",
+  "item.expectationitems.wrench": "配置扳手",
+  "block.expectationitems.tool_block": "工具方块",
+  "itemGroup.expectationitems.expectation": "期待的物品",
+  "message.expectationitems.interceptor_enabled": "✅ 死亡拦截器已启用",
+  "message.expectationitems.interceptor_disabled": "❌ 死亡拦截器已禁用",
+  "message.expectationitems.entities_cleared": "💥 强制清除了 %s 个实体",
+  "message.expectationitems.attack_blocked": "🔒 攻击被期待之剑拦截!",
+  "message.expectationitems.flight_enabled": "✨ 已启用事件拦截和飞行能力",
+  "gui.wrench.title": "🔧 模组配置界面",
+  "gui.wrench.sword_settings": "剑设置",
+  "gui.wrench.toolblock_settings": "工具方块设置",
+  "gui.wrench.save": "保存配置"
+}

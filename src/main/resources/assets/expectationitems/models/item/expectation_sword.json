@@ -1,0 +1,6 @@
+{
+  "parent": "item/handheld",
+  "textures": {
+    "layer0": "expectationitems:item/expectation_sword"
+  }
+}
