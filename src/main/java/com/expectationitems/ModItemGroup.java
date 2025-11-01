@@ -14,6 +14,8 @@ public class ModItemGroup {
             .displayName(Text.translatable("itemGroup.expectationitems.expectation"))
             .entries((context, entries) -> {
                 entries.add(ModItems.EXPECTATION_SWORD);
+                entries.add(ModItems.TOOL_BLOCK_ITEM);
+                entries.add(ModItems.WRENCH_ITEM);
             })
             .build();
     

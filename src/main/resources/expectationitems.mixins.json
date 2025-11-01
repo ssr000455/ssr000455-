@@ -2,14 +2,15 @@
     "required": true,
     "package": "com.expectationitems.mixin",
     "compatibilityLevel": "JAVA_17",
+    "refmap": "expectationitems-refmap.json",
     "mixins": [
         "ExampleMixin",
         "DamageInterceptorMixin",
         "KillInterceptorMixin",
         "RemoveInterceptorMixin",
         "PlayerStateMixin",
-        "EntityInteractionMixin",
-        "WorldInterceptorMixin"
+        "WorldInterceptorMixin",
+        "AbsoluteDefenseMixin"
     ],
     "injectors": {
         "defaultRequire": 1

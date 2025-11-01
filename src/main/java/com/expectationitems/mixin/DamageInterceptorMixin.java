@@ -16,13 +16,13 @@ public class DamageInterceptorMixin {
     private void interceptDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         LivingEntity entity = (LivingEntity) (Object) this;
         
+        // 只保护持剑的玩家
         if (entity instanceof PlayerEntity player) {
             if (EventHandler.isEventInterceptorEnabled(player) && 
                 EventHandler.isHoldingExpectationSword(player)) {
                 cir.setReturnValue(false);
                 cir.cancel();
                 
-                // 持续恢复生命值
                 if (player.getHealth() < player.getMaxHealth()) {
                     player.setHealth(player.getMaxHealth());
                 }

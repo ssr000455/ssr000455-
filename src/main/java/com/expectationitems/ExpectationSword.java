@@ -29,8 +29,8 @@ public class ExpectationSword extends SwordItem {
                 boolean newState = !EventHandler.isDeathInterceptorEnabled(user);
                 EventHandler.setDeathInterceptorEnabled(user, newState);
                 
-                String status = newState ? "✅ 启用" : "❌ 禁用";
-                user.sendMessage(Text.literal(status + " 死亡拦截器"), false);
+                String messageKey = newState ? "message.expectationitems.interceptor_enabled" : "message.expectationitems.interceptor_disabled";
+                user.sendMessage(Text.translatable(messageKey), false);
             }
         }
         
@@ -57,7 +57,7 @@ public class ExpectationSword extends SwordItem {
         }
         
         if (removedCount > 0) {
-            user.sendMessage(Text.literal("💥 强制清除了 " + removedCount + "/" + totalCount + " 个实体"), false);
+            user.sendMessage(Text.translatable("message.expectationitems.entities_cleared", removedCount), false);
         } else {
             user.sendMessage(Text.literal("ℹ️ 范围内没有可清除的实体"), false);
         }

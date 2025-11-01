@@ -1,0 +1,9 @@
+{
+  "item.expectationitems.expectation_sword": "Sword of Expectation",
+  "itemGroup.expectationitems.expectation": "Expected Items",
+  "message.expectationitems.interceptor_enabled": "✅ Death Interceptor Enabled",
+  "message.expectationitems.interceptor_disabled": "❌ Death Interceptor Disabled",
+  "message.expectationitems.entities_cleared": "💥 Force cleared %s entities",
+  "message.expectationitems.attack_blocked": "🔒 Attack blocked by Sword of Expectation!",
+  "message.expectationitems.flight_enabled": "✨ Event interception and flight enabled"
+}

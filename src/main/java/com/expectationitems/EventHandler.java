@@ -12,7 +12,6 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.text.Text;
 
 public class EventHandler {
-    // 改为实例变量，每个玩家独立状态
     private static final java.util.Map<PlayerEntity, PlayerInterceptorState> playerStates = new java.util.HashMap<>();
     
     public static void registerEvents() {
@@ -22,12 +21,17 @@ public class EventHandler {
     private static ActionResult onAttackEntity(PlayerEntity player, World world, Hand hand, 
                                              net.minecraft.entity.Entity entity, @Nullable EntityHitResult hitResult) {
         PlayerInterceptorState state = playerStates.get(player);
-        if (state != null && state.isEventInterceptorEnabled() && isHoldingExpectationSword(player)) {
-            if (!world.isClient) {
-                player.sendMessage(Text.literal("🔒 攻击被期望之剑拦截!"), false);
+        
+        if (entity instanceof PlayerEntity targetPlayer) {
+            if (isHoldingExpectationSword(targetPlayer) && 
+                isEventInterceptorEnabled(targetPlayer)) {
+                if (!world.isClient) {
+                    player.sendMessage(Text.translatable("message.expectationitems.attack_blocked"), false);
+                }
+                return ActionResult.FAIL;
             }
-            return ActionResult.FAIL;
         }
+        
         return ActionResult.PASS;
     }
     
@@ -41,14 +45,25 @@ public class EventHandler {
                 playerStates.put(player, state);
             }
             
-            // 持剑时持续启用能力
+            // 检查副手是否有工具方块
+            boolean hasToolBlockInOffhand = player.getOffHandStack().getItem() == ModItems.TOOL_BLOCK_ITEM;
+            
+            if (hasToolBlockInOffhand) {
+                // 副手持有时增加移动速度和抗性提升
+                player.addStatusEffect(new StatusEffectInstance(StatusEffects.SPEED, 40, 1, false, false));
+                player.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE, 40, 1, false, false));
+                
+                // 简单的事件拦截器 - 防止火焰和岩浆伤害
+                player.setFireTicks(0);
+            }
+            
             if (holdingSword) {
                 if (!state.isEventInterceptorEnabled()) {
                     state.setEventInterceptorEnabled(true);
                     player.getAbilities().allowFlying = true;
                     player.sendAbilitiesUpdate();
                     if (!player.getWorld().isClient) {
-                        player.sendMessage(Text.literal("✨ 已启用事件拦截和飞行能力"), false);
+                        player.sendMessage(Text.translatable("message.expectationitems.flight_enabled"), false);
                     }
                 }
                 
@@ -56,22 +71,18 @@ public class EventHandler {
                     state.setDeathInterceptorEnabled(true);
                 }
                 
-                // 持续保持飞行能力
                 player.getAbilities().allowFlying = true;
                 player.sendAbilitiesUpdate();
                 
-                // 持续缓降效果
                 if (player.getVelocity().y < 0) {
                     player.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOW_FALLING, 20, 0, false, false));
                 }
                 
-                // 持续强制保持存活状态
                 if (player.getHealth() <= 0) {
                     player.setHealth(player.getMaxHealth());
                 }
                 
             } else {
-                // 不持剑时持续禁用能力
                 if (state.isEventInterceptorEnabled()) {
                     state.setEventInterceptorEnabled(false);
                     if (!player.isCreative()) {
@@ -83,7 +94,6 @@ public class EventHandler {
                 state.setDeathInterceptorEnabled(false);
             }
             
-            // 清理离线玩家状态
             playerStates.keySet().removeIf(p -> p.isRemoved() || !p.isAlive());
         });
     }
@@ -121,7 +131,6 @@ public class EventHandler {
         }
     }
     
-    // 玩家拦截状态类
     private static class PlayerInterceptorState {
         private boolean eventInterceptorEnabled = false;
         private boolean deathInterceptorEnabled = false;

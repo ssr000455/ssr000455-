@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "expectationitems:block/tool_block" }
+  }
+}
